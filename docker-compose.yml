@@ -8,6 +8,7 @@ services:
     volumes:
       - ./docker-conf/rabbitmq/data/:/var/lib/rabbitmq
       - ./docker-conf/rabbitmq/log/:/var/log/rabbitmq
+      - ./docker-conf/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     environment:
       - RABBITMQ_DEFAULT_USER=crawler
       - RABBITMQ_DEFAULT_PASS=rabbit
@@ -15,65 +16,43 @@ services:
       - network_project
 
   worker:
-    image: python:3.14.0a1-alpine3.20
+    build:
+      context: ./src/worker
+      dockerfile: Dockerfile
     container_name: worker
-    working_dir: /usr/src/app
-    volumes:
-      - ./src/worker:/usr/src/app
-      - ./src/worker/supervisor/sintegra_goias.conf:/etc/supervisor/conf.d/sintegra_goias.conf
     ports:
       - "8080:8000"
+    volumes:  # se quiser live-code, mas ideal é só build
+      - ./src/worker:/usr/src/app
     networks:
       - network_project
     depends_on:
       - rabbitmq
       - redis
-    environment:
-      RABBITMQ_HOST: rabbitmq
-      REDIS_HOST: redis
-      PYTHONPATH: /usr/src/app
-    restart: unless-stopped
-    command: >
-      sh -c "apk update && 
-             apk add --no-cache supervisor && 
-             mkdir -p /var/log/supervisor &&
-             pip install -r requirements.txt && 
-             supervisord -c /etc/supervisor/conf.d/sintegra_goias.conf"
 
   api:
-    image: python:3.10-alpine
+    build:
+      context: ./src/app
+      dockerfile: Dockerfile
     container_name: api
-    working_dir: /usr/src/app
-    volumes:
-      - ./src/app:/usr/src/app
     ports:
       - "8000:8000"
+    volumes:
+      - ./src/app:/usr/src/app
     networks:
       - network_project
     depends_on:
       - rabbitmq
       - redis
-    environment:
-      RABBITMQ_HOST: rabbitmq
-      REDIS_HOST: redis
-      PYTHONPATH: /usr/src/app
-    restart: unless-stopped
-    command: >
-      sh -c "
-        apk update &&
-        apk add rust cargo build-base &&  # Instala o Rust e ferramentas de compilação
-        pip install -r requirements.txt &&  # Instala as dependências do Python
-        uvicorn routers.app:app --host 0.0.0.0 --port 8000  # Roda o FastAPI
-      "
 
   redis:
     image: redis:7.4.1-alpine
     container_name: redis
     restart: always
     ports:
-      - '6379:6379'
+      - '6380:6379'
     command: redis-server --save 20 1 --loglevel warning
-    volumes: 
+    volumes:
       - ./docker-conf/redis/data:/data
     networks:
       - network_project
