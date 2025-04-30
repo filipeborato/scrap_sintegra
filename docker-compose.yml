@@ -40,7 +40,7 @@ services:
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: crawler
-      RABBITMQ_PASS: rabbit
+      RABBITMQ_PASS: crawler
     networks:
       - network_project
 
