@@ -1,6 +1,7 @@
 import secrets
 import json
 import re
+import logging
 
 from datetime import datetime
 from models.response_api_model import ResponseApiModel
@@ -9,10 +10,11 @@ from services.redis_service import RedisService
 
 class SintegraScraperController:
     
+    # Método para criar uma task
     async def criar_task(self, body):
         cnpj = body.get("cnpj", None)
         
-        #validacoes basicas
+        # Validações básicas
         if not cnpj:
             return ResponseApiModel("", {"msg": "CNPJ é obrigatório"}, 'NAO').send()
     
