@@ -1,0 +1,39 @@
+import redis
+import logging
+
+class RedisService:
+    def __init__(self, host="redis", port=6379, db=0):
+        self.host = host
+        self.port = port
+        self.db = db
+        self.redis_client = None
+        self.connect()
+
+    def connect(self):
+        try:
+            self.redis_client = redis.Redis(host=self.host, port=self.port, db=self.db, decode_responses=True)
+            self.redis_client.ping()
+            logging.info(f"Connected to Redis at {self.host}:{self.port}")
+        except Exception as e:
+            logging.error(f"Error connecting to Redis: {e}")
+
+    def get(self, key):
+        try:
+            return self.redis_client.get(key)
+        except Exception as e:
+            logging.error(f"Error getting key {key}: {e}")
+            return None
+
+    def set(self, key, value, expires_in=86400):
+        try:
+            self.redis_client.setex(key, expires_in, value)
+        except Exception as e:
+            logging.error(f"Error setting key {key} with value {value}: {e}")
+
+    def close(self):
+        try:
+            if self.redis_client:
+                self.redis_client.close()
+                logging.info("Redis connection closed.")
+        except Exception as e:
+            logging.error(f"Error closing Redis connection: {e}")
