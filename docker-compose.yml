@@ -1,7 +1,7 @@
 services:
   rabbitmq:
     image: rabbitmq:4.0.2-management-alpine
-    container_name: 'rabbitmq'
+    container_name: rabbitmq
     ports:
       - "15672:15672"
     expose:
@@ -13,6 +13,12 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=crawler
       - RABBITMQ_DEFAULT_PASS=rabbit
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     networks:
       - network_project
 
@@ -20,16 +26,22 @@ services:
     build:
       context: ./src/worker
       dockerfile: Dockerfile
+    image: scrap_sintegra_worker
     container_name: worker
     ports:
       - "8080:8000"
-    volumes:  # se quiser live-code, mas ideal é só build
-      - ./src/worker:/usr/src/app
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: crawler
+      RABBITMQ_PASS: rabbit
     networks:
       - network_project
-    depends_on:
-      - rabbitmq
-      - redis
 
   api:
     build:
