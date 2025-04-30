@@ -1,10 +1,11 @@
 services:
   rabbitmq:
     image: rabbitmq:4.0.2-management-alpine
-    container_name: 'rabbitmq'
+    container_name: rabbitmq
     ports:
-      - "5672:5672"
       - "15672:15672"
+    expose:
+      - "5672"
     volumes:
       - ./docker-conf/rabbitmq/data/:/var/lib/rabbitmq
       - ./docker-conf/rabbitmq/log/:/var/log/rabbitmq
@@ -12,6 +13,12 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=crawler
       - RABBITMQ_DEFAULT_PASS=rabbit
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     networks:
       - network_project
 
@@ -19,16 +26,22 @@ services:
     build:
       context: ./src/worker
       dockerfile: Dockerfile
+    image: scrap_sintegra_worker
     container_name: worker
     ports:
       - "8080:8000"
-    volumes:  # se quiser live-code, mas ideal é só build
-      - ./src/worker:/usr/src/app
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: crawler
+      RABBITMQ_PASS: rabbit
     networks:
       - network_project
-    depends_on:
-      - rabbitmq
-      - redis
 
   api:
     build:
@@ -48,15 +61,13 @@ services:
   redis:
     image: redis:7.4.1-alpine
     container_name: redis
-    restart: always
     ports:
       - '6380:6379'
-    command: redis-server --save 20 1 --loglevel warning
     volumes:
       - ./docker-conf/redis/data:/data
-    networks:
-      - network_project
-
+      - ./docker-conf/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf --save 20 1 --loglevel warning
+    
 networks:
   network_project:
     driver: bridge
