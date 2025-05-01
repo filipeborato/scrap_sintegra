@@ -58,9 +58,9 @@ class SintegraGoiasRetorno:
         return atividades
 
     def to_json(self):
-        dados = {
-            "status_task": "processado",
-            "dados_processados": self.tratar_dados()
+        data = {
+            "status_task": "processed",
+            "processed_data": self.tratar_dados()
         }
-        return json.dumps(dados, indent=4)
+        return json.dumps(data, indent=4)
 
