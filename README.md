@@ -18,11 +18,11 @@ To start the project in containers, follow these steps:
 
 1. Clone the project  
     ```sh
-    git clone https://github.com/filipeborato/{project_name}
+    git clone https://github.com/filipeborato/scrap_sintegra
     ```
 2. Enter the project folder  
     ```sh
-    cd {project_name}/
+    cd scrap_sintegra/
     ```
 3. Set folder permissions  
     ```sh
