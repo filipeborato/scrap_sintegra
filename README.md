@@ -69,5 +69,5 @@ To start the project in containers, follow these steps:
 
 - **Run API Tests:**  
   ```sh
-  docker exec -it api pytest
+  docker exec -it api sh -c "PYTHONPATH=/usr/src/app pytest"
   ```
