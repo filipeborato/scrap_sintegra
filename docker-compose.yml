@@ -12,7 +12,7 @@ services:
       - ./docker-conf/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     environment:
       - RABBITMQ_DEFAULT_USER=crawler
-      - RABBITMQ_DEFAULT_PASS=rabbit
+      - RABBITMQ_DEFAULT_PASS=crawler
       - RABBITMQ_ERLANG_COOKIE=supersecretcookie123
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
