@@ -7,7 +7,7 @@ app = FastAPI()
 
 @app.get("/")
 def home():
-    return {"Teste": "Desafio Técnico"}
+    return {"Test": "Technical Challenge"}
 
 @app.post("/scrape")
 async def scrape(request: Request):
