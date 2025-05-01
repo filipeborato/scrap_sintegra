@@ -21,7 +21,7 @@ def test_scrape_invalid_cnpj():
     assert "CNPJ must have 14 digits" in response.json().get("content", {}).get("msg", "")
 
 def test_results_task():    
-    task_id = "1b84980b37370d59_20241108034959"
+    task_id = "fd0a4f69978a521a_20250501164226"
     response = client.get(f"/results/{task_id}")
     assert response.status_code == 200
     assert "success" in response.json()

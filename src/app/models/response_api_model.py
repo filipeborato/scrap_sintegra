@@ -5,11 +5,11 @@ from typing import Any, List, Dict
 class ResponseApiModel:
     task_id: str = ''
     content: List[Any] = field(default_factory=list)
-    sucesso: str = 'SIM'
+    sucesso: str = 'YES'
 
     def send(self) -> Dict[str, Any]:
         return {
-            "sucesso": self.sucesso,
+            "success": self.sucesso,
             "task_id": self.task_id,
             "content": self.content
         }
