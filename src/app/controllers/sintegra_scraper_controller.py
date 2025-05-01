@@ -13,35 +13,35 @@ class SintegraScraperController:
     async def criar_task(self, body):
         cnpj = body.get("cnpj")
         if not cnpj:
-            return ResponseApiModel("", {"msg": "CNPJ é obrigatório"}, "NAO").send()
+            return ResponseApiModel("", {"msg": "CNPJ is required"}, "NO").send()
         
         cnpj = re.sub(r"\D", "", cnpj)
         if len(cnpj) != 14:
-            return ResponseApiModel("", {"msg": "CNPJ deve ter 14 dígitos"}, "NAO").send()
+            return ResponseApiModel("", {"msg": "CNPJ must have 14 digits"}, "NO").send()
         
         task_id = self.gera_task_id()
         producer = RabbitMQProducer()
         cache = RedisService()
         
         try:
-            # Envia a mensagem para a fila
+            # Send message to queue
             await producer.send_message(
                 "CRAWLER_CNPJ_SINTEGRA_GOIAS",
                 {"task_id": task_id, "cnpj": cnpj}
             )
-            # Registra a task no Redis
-            cache.set(task_id, json.dumps({"status_task": "em_andamento", "dados_processados": {}}))
-            return ResponseApiModel(task_id, {"status_task": "em_andamento", "dados_processados": {}}).send()
+            # Register task in Redis
+            cache.set(task_id, json.dumps({"status_task": "in_progress", "processed_data": {}}))
+            return ResponseApiModel(task_id, {"status_task": "in_progress", "processed_data": {}}).send()
         except Exception as e:
-            logging.exception("Erro ao criar task:")
-            return ResponseApiModel("", {"msg": "Ocorreu um erro inesperado"}, "NAO").send()
+            logging.exception("Error creating task:")
+            return ResponseApiModel("", {"msg": "An unexpected error occurred"}, "NO").send()
         finally:
             await producer.close()
             cache.close()
 
     def get_task(self, task_id):
         if not task_id:
-            return ResponseApiModel("", {"msg": "Task não encontrada ou inválida"}, "NAO").send()
+            return ResponseApiModel("", {"msg": "Task not found or invalid"}, "NO").send()
         
         cache = RedisService()
         try:
@@ -49,7 +49,7 @@ class SintegraScraperController:
             if task:
                 return ResponseApiModel(task_id, json.loads(task)).send()
             else:
-                return ResponseApiModel("", {"msg": "Task não encontrada ou inválida"}, "NAO").send()
+                return ResponseApiModel("", {"msg": "Task not found or invalid"}, "NO").send()
         finally:
             cache.close()
     
