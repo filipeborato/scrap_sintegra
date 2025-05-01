@@ -36,25 +36,38 @@ To start the project in containers, follow these steps:
 
 ## Access and Routes
 
-- Access RabbitMQ web UI:  
+- **Access RabbitMQ Web UI:**  
   `http://localhost:15672/` or `http://{IPVM}:15672/` (if applicable)  
-  user: `crawler` | password: `crawler`  
-- Access Redis CLI:  
+  Username: `crawler` | Password: `crawler`
+
+- **Access Redis CLI:**  
   ```sh
   docker exec -it redis redis-cli
-- Route (POST) /scrape: `http://localhost:8000/scrape`
-```sh
-{
-    "cnpj": "00012377000160"
-}
-```
-- Curl example:
-```sh
-curl --location --request POST 'http://localhost:8000/scrape' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "cnpj": "00012377000160"
-}'
-```
-- Route (GET) /results/{task_id}: `http://localhost:8000/results/{task_id}`
-- Run API tests: `docker exec -it api pytest`
+  ```
+
+- **Route (POST) /scrape:** `http://localhost:8000/scrape`  
+  **Payload Example:**
+  ```json
+  {
+      "cnpj": "00012377000160"
+  }
+  ```
+  **cURL Example:**
+  ```sh
+  curl --location --request POST 'http://localhost:8000/scrape' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "cnpj": "00012377000160"
+    }'
+  ```
+
+- **Route (GET) /results/{task_id}:** `http://localhost:8000/results/{task_id}`  
+  **cURL Example:**
+  ```sh
+  curl --location --request GET 'http://localhost:8000/results/1b84980b37370d59_20241108034959'
+  ```
+
+- **Run API Tests:**  
+  ```sh
+  docker exec -it api pytest
+  ```
