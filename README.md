@@ -24,11 +24,7 @@ To start the project in containers, follow these steps:
     ```sh
     cd scrap_sintegra/
     ```
-3. Set folder permissions  
-    ```sh
-    chmod o+w * -R
-    ```
-4. Bring up the containers  
+3. Bring up the containers  
     ```sh
     docker-compose up
     ```
